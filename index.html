@@ -1,1 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neo-Metanoia Content Studio</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+      body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0B132B; color: #FFFFFF; }
+    </style>
+</head>
+<body class="bg-[#0B132B] text-white min-h-screen">
+    <div id="root"></div>
+    <script type="text/babel">
+        // Neo-Metanoia Content Studio - Offline Engine Core
+        const DEFAULT_SETTINGS = {
+            businessName: "Neo-Metanoia Concepts",
+            slogan: "Where Your Mind Gets Transformed",
+            defaultTone: "Motivational",
+            defaultLength: "Medium",
+            defaultAudience: "Entrepreneurs",
+            defaultAspectRatio: "1:1 Square",
+            defaultCta: "Follow Neo-Metanoia — Where Your Mind Gets Transformed.",
+            defaultHashtags: "#NeoMetanoia #MindsetTransformation #Growth"
+        };
 
+        const INITIAL_CTAS = [
+            "Follow Neo-Metanoia — Where Your Mind Gets Transformed.",
+            "Save this for later and share with your network.",
+            "What do you think? Share your view below.",
+            "Keep learning. Keep growing. Transform your mind today.",
+            "Read. Learn. Grow. Transform."
+        ];
+
+        const INITIAL_STYLES = [
+            "Premium green and gold",
+            "Cinematic dark luxury",
+            "Minimalist modern professional",
+            "Outdoor business growth",
+            "Symbolic object transformation"
+        ];
+function App() {
+            const [activeTab, setActiveTab] = React.useState('home');
+            const [savedContent, setSavedContent] = React.useState(() => {
+                try { return JSON.parse(localStorage.getItem('nm_saved')) || []; } catch { return []; }
+            });
+            const [plannerItems, setPlannerItems] = React.useState(() => {
+                try { return JSON.parse(localStorage.getItem('nm_planner')) || []; } catch { return []; }
+            });
+            const [settings, setSettings] = React.useState(() => {
+                try { return JSON.parse(localStorage.getItem('nm_settings')) || DEFAULT_SETTINGS; } catch { return DEFAULT_SETTINGS; }
+            });
+            const [ctas, setCtas] = React.useState(() => {
+                try { return JSON.parse(localStorage.getItem('nm_ctas')) || INITIAL_CTAS; } catch { return INITIAL_CTAS; }
+            });
+            const [styles, setStyles] = React.useState(() => {
+                try { return JSON.parse(localStorage.getItem('nm_styles')) || INITIAL_STYLES; } catch { return INITIAL_STYLES; }
+            });
+
+            React.useEffect(() => { localStorage.setItem('nm_saved', JSON.stringify(savedContent)); }, [savedContent]);
+            React.useEffect(() => { localStorage.setItem('nm_planner', JSON.stringify(plannerItems)); }, [plannerItems]);
+            React.useEffect(() => { localStorage.setItem('nm_settings', JSON.stringify(settings)); }, [settings]);
+            React.useEffect(() => { localStorage.setItem('nm_ctas', JSON.stringify(ctas)); }, [ctas]);
+            React.useEffect(() => { localStorage.setItem('nm_styles', JSON.stringify(styles)); }, [styles]);
+
+            return (
+                <div className="pb-24 max-w-md mx-auto min-h-screen bg-[#0B132B] text-white flex flex-col">
+                    <header className="p-4 border-b border-[#1C2541] flex justify-between items-center bg-[#0B132B] sticky top-0 z-50">
+                        <div>
+                            <h1 className="font-bold text-lg text-amber-400">{settings.businessName}</h1>
+                            <p className="text-xs text-gray-400">Create. Educate. Transform.</p>
+                        </div>
+                        <button onClick={() => setActiveTab('settings')} className="p-2 bg-[#1C2541] rounded-xl text-amber-400">⚙️</button>
+                    </header>
+
+                    <main className="p-4 flex-1">
+                        {activeTab === 'home' && (
+                            <div className="space-y-6 text-center py-8">
+                                <div className="p-6 bg-[#1C2541] rounded-2xl border border-emerald-900/50 shadow-xl">
+                                    <h2 className="text-2xl font-bold mb-2">Mindset Studio</h2>
+                                    <p className="text-sm text-gray-300 mb-6">{settings.slogan}</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button onClick={() => setActiveTab('content')} className="p-4 bg-emerald-700 hover:bg-emerald-600 rounded-xl font-bold text-sm shadow-lg flex flex-col items-center justify-center gap-2">
+                                            <span className="text-2xl">✍️</span> Content Creator
+                                        </button>
+                                        <button onClick={() => setActiveTab('image')} className="p-4 bg-amber-600 hover:bg-amber-500 rounded-xl font-bold text-sm shadow-lg flex flex-col items-center justify-center gap-2 text-black">
+                                            <span className="text-2xl">🎨</span> Image Studio
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button onClick={() => setActiveTab('hooks')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">⚡ Hook Generator</button>
+                                    <button onClick={() => setActiveTab('repurpose')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">🔄 Repurpose Content</button>
+                                    <button onClick={() => setActiveTab('series')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">📅 Series Builder</button>
+                                    <button onClick={() => setActiveTab('book')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">📖 Book-to-Content</button>
+                                    <button onClick={() => setActiveTab('planner')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold col-span-2">🗓️ Content Planner & History</button>
+                                </div>
+                            </div>
+                        )}
+                        {activeTab !== 'home' && (
+                            <button onClick={() => setActiveTab('home')} className="mb-4 text-xs bg-[#1C2541] px-3 py-1.5 rounded-lg text-amber-400">← Back to Dashboard</button>
+                        )}
+                        {activeTab === 'content' && <div className="p-4 bg-[#1C2541] rounded-xl"><h3 className="font-bold text-amber-400 mb-2">Content Creator (Offline Active)</h3><p className="text-xs text-gray-300">Select your preferences in settings and start building high-impact brand copy instantly.</p></div>}
+                        {activeTab === 'image' && <div className="p-4 bg-[#1C2541] rounded-xl"><h3 className="font-bold text-amber-400 mb-2">Image Studio (Offline Active)</h3><p className="text-xs text-gray-300">Generate deep green and gold luxury brand prompts effortlessly.</p></div>}
+                    </main>
+                </div>
+            );
+        }
+        ReactDOM.render(<App />, document.getElementById('root'));
