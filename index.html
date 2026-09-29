@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -17,7 +16,6 @@
 <body class="bg-[#0B132B] text-white min-h-screen">
     <div id="root"></div>
     <script type="text/babel">
-        // Neo-Metanoia Content Studio - Offline Engine Core
         const DEFAULT_SETTINGS = {
             businessName: "Neo-Metanoia Concepts",
             slogan: "Where Your Mind Gets Transformed",
@@ -44,13 +42,11 @@
             "Outdoor business growth",
             "Symbolic object transformation"
         ];
-function App() {
+
+        function App() {
             const [activeTab, setActiveTab] = React.useState('home');
             const [savedContent, setSavedContent] = React.useState(() => {
                 try { return JSON.parse(localStorage.getItem('nm_saved')) || []; } catch { return []; }
-            });
-            const [plannerItems, setPlannerItems] = React.useState(() => {
-                try { return JSON.parse(localStorage.getItem('nm_planner')) || []; } catch { return []; }
             });
             const [settings, setSettings] = React.useState(() => {
                 try { return JSON.parse(localStorage.getItem('nm_settings')) || DEFAULT_SETTINGS; } catch { return DEFAULT_SETTINGS; }
@@ -62,53 +58,251 @@ function App() {
                 try { return JSON.parse(localStorage.getItem('nm_styles')) || INITIAL_STYLES; } catch { return INITIAL_STYLES; }
             });
 
+            // State for Content Creator
+            const [topic, setTopic] = React.useState('');
+            const [platform, setPlatform] = React.useState('Facebook');
+            const [tone, setTone] = React.useState(settings.defaultTone);
+            const [length, setLength] = React.useState(settings.defaultLength);
+            const [audience, setAudience] = React.useState(settings.defaultAudience);
+            const [generatedOutput, setGeneratedOutput] = React.useState(null);
+
+            // State for Image Studio
+            const [imageText, setImageText] = React.useState('');
+            const [imageIdea, setImageIdea] = React.useState('');
+            const [imageAspect, setImageAspect] = React.useState('1:1');
+            const [imageStyle, setImageStyle] = React.useState('Premium green and gold');
+            const [generatedPrompt, setGeneratedPrompt] = React.useState(null);
+
             React.useEffect(() => { localStorage.setItem('nm_saved', JSON.stringify(savedContent)); }, [savedContent]);
-            React.useEffect(() => { localStorage.setItem('nm_planner', JSON.stringify(plannerItems)); }, [plannerItems]);
             React.useEffect(() => { localStorage.setItem('nm_settings', JSON.stringify(settings)); }, [settings]);
             React.useEffect(() => { localStorage.setItem('nm_ctas', JSON.stringify(ctas)); }, [ctas]);
             React.useEffect(() => { localStorage.setItem('nm_styles', JSON.stringify(styles)); }, [styles]);
+
+            const handleGenerateContent = (e) => {
+                e.preventDefault();
+                if (!topic) return alert('Please enter a topic or idea.');
+                
+                let output = {};
+                if (platform === 'Facebook') {
+                    output = {
+                        type: 'Facebook',
+                        hook: `Most people misunderstand ${topic}. Here is the truth that shifts everything.`,
+                        body: `True ${topic.toLowerCase()} is not about quick hacks; it requires deep mental restructuring. When you master your internal paradigm, external results follow naturally. Focus on practical value over empty motivation.`,
+                        cta: settings.defaultCta,
+                        hashtags: settings.defaultHashtags
+                    };
+                } else if (platform === 'Instagram') {
+                    output = {
+                        type: 'Instagram',
+                        opening: `The single biggest block holding you back from mastering ${topic}...`,
+                        caption: `Break free from conventional limitations regarding ${topic.toLowerCase()}. True transformation happens when your thoughts align with purposeful action. Read that again.`,
+                        cta: settings.defaultCta,
+                        hashtags: settings.defaultHashtags,
+                        carousel: [
+                            "Slide 1: The Illusion of Limit",
+                            `Slide 2: The Core Truth About ${topic}`,
+                            "Slide 3: Actionable Framework",
+                            "Slide 4: Save & Apply Today"
+                        ]
+                    };
+                } else if (platform === 'TikTok') {
+                    output = {
+                        type: 'TikTok',
+                        hook: `Stop scrolling if you want to master ${topic} this year.`,
+                        script: `(0-5s) Hook displayed on screen.\n(5-25s) Breakdown of key principle regarding ${topic}.\n(25-45s) Direct call to action for viewers.`,
+                        textOnScreen: `MASTERING ${topic.toUpperCase()}`,
+                        cta: settings.defaultCta,
+                        hashtags: settings.defaultHashtags
+                    };
+                } else {
+                    output = {
+                        type: 'YouTube',
+                        title: `The Ultimate Guide to ${topic} & Mindset Shift`,
+                        hook: `If you've been struggling with ${topic}, watch this until the end.`,
+                        outline: `1. Introduction\n2. The Core Problem\n3. The Neo-Metanoia Framework\n4. Conclusion`,
+                        description: `Deep dive into ${topic}. Designed for ${audience.toLowerCase()}.\n\n${settings.defaultCta}`,
+                        thumbnailText: `MASTER ${topic.toUpperCase()}`,
+                        cta: settings.defaultCta,
+                        tags: `${topic}, mindset transformation, neo metanoia`
+                    };
+                }
+                setGeneratedOutput(output);
+            };
+
+            const handleGenerateImage = (e) => {
+                e.preventDefault();
+                if (!imageIdea) return alert('Please enter an image idea.');
+                const prompt = `Professional graphic design for ${settings.businessName}. Theme: ${imageIdea}. Main text: "${imageText || settings.slogan}". Style: ${imageStyle}, deep green, gold, navy blue, white, premium smooth finishing, elegant typography, modern professional design. Aspect Ratio: ${imageAspect}.`;
+                setGeneratedPrompt(prompt);
+            };
+
+            const saveCurrentResult = (data) => {
+                setSavedContent([ { id: Date.now(), ...data }, ...savedContent ]);
+                alert('Successfully saved to history!');
+            };
 
             return (
                 <div className="pb-24 max-w-md mx-auto min-h-screen bg-[#0B132B] text-white flex flex-col">
                     <header className="p-4 border-b border-[#1C2541] flex justify-between items-center bg-[#0B132B] sticky top-0 z-50">
                         <div>
                             <h1 className="font-bold text-lg text-amber-400">{settings.businessName}</h1>
-                            <p className="text-xs text-gray-400">Create. Educate. Transform.</p>
+                            <p className="text-xs text-gray-400">{settings.slogan}</p>
                         </div>
-                        <button onClick={() => setActiveTab('settings')} className="p-2 bg-[#1C2541] rounded-xl text-amber-400">⚙️</button>
+                        <button onClick={() => setActiveTab('settings')} className="p-2 bg-[#1C2541] rounded-xl text-amber-400 text-sm">⚙️ Settings</button>
                     </header>
 
                     <main className="p-4 flex-1">
                         {activeTab === 'home' && (
-                            <div className="space-y-6 text-center py-8">
+                            <div className="space-y-6 text-center py-4">
                                 <div className="p-6 bg-[#1C2541] rounded-2xl border border-emerald-900/50 shadow-xl">
-                                    <h2 className="text-2xl font-bold mb-2">Mindset Studio</h2>
-                                    <p className="text-sm text-gray-300 mb-6">{settings.slogan}</p>
+                                    <h2 className="text-xl font-bold mb-2">Content Studio</h2>
+                                    <p className="text-xs text-gray-300 mb-6">Create high-impact brand assets instantly.</p>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <button onClick={() => setActiveTab('content')} className="p-4 bg-emerald-700 hover:bg-emerald-600 rounded-xl font-bold text-sm shadow-lg flex flex-col items-center justify-center gap-2">
+                                        <button onClick={() => setActiveTab('content')} className="p-4 bg-emerald-700 hover:bg-emerald-600 rounded-xl font-bold text-xs shadow-lg flex flex-col items-center justify-center gap-2">
                                             <span className="text-2xl">✍️</span> Content Creator
                                         </button>
-                                        <button onClick={() => setActiveTab('image')} className="p-4 bg-amber-600 hover:bg-amber-500 rounded-xl font-bold text-sm shadow-lg flex flex-col items-center justify-center gap-2 text-black">
+                                        <button onClick={() => setActiveTab('image')} className="p-4 bg-amber-600 hover:bg-amber-500 rounded-xl font-bold text-xs shadow-lg flex flex-col items-center justify-center gap-2 text-black">
                                             <span className="text-2xl">🎨</span> Image Studio
                                         </button>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <button onClick={() => setActiveTab('hooks')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">⚡ Hook Generator</button>
-                                    <button onClick={() => setActiveTab('repurpose')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">🔄 Repurpose Content</button>
-                                    <button onClick={() => setActiveTab('series')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">📅 Series Builder</button>
-                                    <button onClick={() => setActiveTab('book')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">📖 Book-to-Content</button>
-                                    <button onClick={() => setActiveTab('planner')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold col-span-2">🗓️ Content Planner & History</button>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button onClick={() => setActiveTab('history')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">📂 Saved Content ({savedContent.length})</button>
+                                    <button onClick={() => setActiveTab('planner')} className="p-3 bg-[#1C2541] rounded-xl text-left text-xs font-semibold">🗓️ Content Planner</button>
                                 </div>
                             </div>
                         )}
+
                         {activeTab !== 'home' && (
                             <button onClick={() => setActiveTab('home')} className="mb-4 text-xs bg-[#1C2541] px-3 py-1.5 rounded-lg text-amber-400">← Back to Dashboard</button>
                         )}
-                        {activeTab === 'content' && <div className="p-4 bg-[#1C2541] rounded-xl"><h3 className="font-bold text-amber-400 mb-2">Content Creator (Offline Active)</h3><p className="text-xs text-gray-300">Select your preferences in settings and start building high-impact brand copy instantly.</p></div>}
-                        {activeTab === 'image' && <div className="p-4 bg-[#1C2541] rounded-xl"><h3 className="font-bold text-amber-400 mb-2">Image Studio (Offline Active)</h3><p className="text-xs text-gray-300">Generate deep green and gold luxury brand prompts effortlessly.</p></div>}
+
+                        {activeTab === 'content' && (
+                            <div className="space-y-4">
+                                <h2 className="text-lg font-bold text-amber-400">Content Creator</h2>
+                                <form onSubmit={handleGenerateContent} className="space-y-3 bg-[#1C2541] p-4 rounded-xl">
+                                    <div>
+                                        <label className="text-xs text-gray-300">Topic or Idea</label>
+                                        <input type="text" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Financial Discipline" className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg text-sm border border-gray-700" required />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-xs text-gray-300">Platform</label>
+                                            <select value={platform} onChange={(e) => setPlatform(e.target.value)} className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg text-sm border border-gray-700">
+                                                <option>Facebook</option>
+                                                <option>Instagram</option>
+                                                <option>TikTok</option>
+                                                <option>YouTube</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-300">Tone</label>
+                                            <select value={tone} onChange={(e) => setTone(e.target.value)} className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg text-sm border border-gray-700">
+                                                <option>Motivational</option>
+                                                <option>Educational</option>
+                                                <option>Faith-based</option>
+                                                <option>Financial Mindset</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" className="w-full py-2.5 bg-emerald-700 font-bold rounded-lg text-sm mt-2">Generate Content</button>
+                                </form>
+
+                                {generatedOutput && (
+                                    <div className="bg-[#1C2541] p-4 rounded-xl space-y-3 border border-emerald-600">
+                                        <h3 className="font-bold text-amber-400 text-sm">Generated {generatedOutput.type} Copy</h3>
+                                        <div className="text-xs bg-[#0B132B] p-3 rounded-lg space-y-2 whitespace-pre-wrap">
+                                            {JSON.stringify(generatedOutput, null, 2)}
+                                        </div>
+                                        <button onClick={() => saveCurrentResult({ title: topic, data: generatedOutput })} className="w-full py-2 bg-amber-600 text-black font-bold text-xs rounded-lg">Save to History</button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'image' && (
+                            <div className="space-y-4">
+                                <h2 className="text-lg font-bold text-amber-400">Neo-Metanoia Image Studio</h2>
+                                <form onSubmit={handleGenerateImage} className="space-y-3 bg-[#1C2541] p-4 rounded-xl">
+                                    <div>
+                                        <label className="text-xs text-gray-300">Main Text / Headline</label>
+                                        <input type="text" value={imageText} onChange={(e) => setImageText(e.target.value)} placeholder="Transform Your Mind" className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg text-sm border border-gray-700" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-300">Visual Scene / Idea</label>
+                                        <input type="text" value={imageIdea} onChange={(e) => setImageIdea(e.target.value)} placeholder="e.g. Gold pathway through a green forest" className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg text-sm border border-gray-700" required />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-xs text-gray-300">Aspect Ratio</label>
+                                            <select value={imageAspect} onChange={(e) => setImageAspect(e.target.value)} className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg text-sm border border-gray-700">
+                                                <option value="1:1">1:1 Square</option>
+                                                <option value="4:5">4:5 Portrait</option>
+                                                <option value="9:16">9:16 Vertical</option>
+                                                <option value="16:9">16:9 Landscape</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-300">Design Style</label>
+                                            <select value={imageStyle} onChange={(e) => setImageStyle(e.target.value)} className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg text-sm border border-gray-700">
+                                                {styles.map((s, idx) => <option key={idx}>{s}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" className="w-full py-2.5 bg-amber-600 text-black font-bold rounded-lg text-sm mt-2">Generate Image Prompt</button>
+                                </form>
+
+                                {generatedPrompt && (
+                                    <div className="bg-[#1C2541] p-4 rounded-xl space-y-3 border border-amber-500">
+                                        <h3 className="font-bold text-amber-400 text-sm">Generated AI Image Prompt</h3>
+                                        <p className="text-xs bg-[#0B132B] p-3 rounded-lg select-all">{generatedPrompt}</p>
+                                        <button onClick={() => { navigator.clipboard.writeText(generatedPrompt); alert('Prompt copied!'); }} className="w-full py-2 bg-emerald-700 text-white font-bold text-xs rounded-lg">Copy Prompt</button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'history' && (
+                            <div className="space-y-4">
+                                <h2 className="text-lg font-bold text-amber-400">Saved Content Library</h2>
+                                {savedContent.length === 0 ? (
+                                    <p className="text-xs text-gray-400">No saved items yet. Generate some content and save it!</p>
+                                ) : (
+                                    savedContent.map(item => (
+                                        <div key={item.id} className="p-3 bg-[#1C2541] rounded-xl space-y-2 text-xs">
+                                            <div className="font-bold text-amber-400">{item.title}</div>
+                                            <pre className="bg-[#0B132B] p-2 rounded text-[10px] overflow-x-auto">{JSON.stringify(item.data, null, 2)}</pre>
+                                            <button onClick={() => setSavedContent(savedContent.filter(i => i.id !== item.id))} className="text-red-400 font-semibold">Delete</button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'settings' && (
+                            <div className="space-y-4">
+                                <h2 className="text-lg font-bold text-amber-400">Brand Settings</h2>
+                                <div className="bg-[#1C2541] p-4 rounded-xl space-y-3 text-xs">
+                                    <div>
+                                        <label className="text-gray-300">Business Name</label>
+                                        <input type="text" value={settings.businessName} onChange={(e) => setSettings({...settings, businessName: e.target.value})} className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg border border-gray-700" />
+                                    </div>
+                                    <div>
+                                        <label className="text-gray-300">Slogan</label>
+                                        <input type="text" value={settings.slogan} onChange={(e) => setSettings({...settings, slogan: e.target.value})} className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg border border-gray-700" />
+                                    </div>
+                                    <div>
+                                        <label className="text-gray-300">Default Call to Action (CTA)</label>
+                                        <input type="text" value={settings.defaultCta} onChange={(e) => setSettings({...settings, defaultCta: e.target.value})} className="w-full mt-1 p-2 bg-[#0B132B] rounded-lg border border-gray-700" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </main>
                 </div>
             );
         }
         ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
